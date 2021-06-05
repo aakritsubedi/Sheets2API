@@ -1,0 +1,25 @@
+{
+  "name": "sheet2api",
+  "version": "1.0.0",
+  "description": "Google Sheet to API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
+  },
+  "keywords": [
+    "GoogleSheets",
+    "API"
+  ],
+  "author": "AAkrit Subedi",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "commander": "^7.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
