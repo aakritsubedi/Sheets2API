@@ -1,0 +1,213 @@
+<template>
+  <div class="container">
+    <img src="@/assets/images/sheet2api.png" alt="Sheet2API" />
+
+    <div class="form__group field">
+      <input
+        type="input"
+        class="form__field"
+        name="name"
+        id="name"
+        autocomplete="off"
+        v-model="url"
+      />
+      <label for="name" class="form__label">Google Sheet URL</label>
+      <span for="name" class="form__helptext"
+        >Enter th full url of the google sheets</span
+      >
+    </div>
+    <a class="btn btn-success" @click="getAPIInfo">Get API</a>
+    <hr />
+    <div class="result" v-if="result">
+      <div class="form__group field" style="width: 100%">
+        <input
+          type="input"
+          class="form__field"
+          readonly="true"
+          v-model="apiURL"
+          @click="() => copyToClipboard(apiURL)"
+        />
+        <label for="name" class="form__label">API Endpoint URL</label>
+        <span for="name" class="form__helptext">Your API Endpoint URL</span>
+      </div>
+      <div style="position: relative; margin: 15px 0">
+        <span class="form__label" style="display: block">Response Data</span
+        ><br />
+        <vue-json-pretty
+          :path="'res'"
+          :data="response"
+          @click="() => copyToClipboard(response)"
+        />
+      </div>
+      <input type="hidden" id="copy-paste" v-model="clipboard" />
+    </div>
+  </div>
+</template>
+
+<script>
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
+
+import SheetsAPI from '@/services/sheets.js'
+
+export default {
+  name: 'Sheet2API',
+  components: {
+    VueJsonPretty,
+  },
+  data() {
+    return {
+      url: '',
+      apiURL: '',
+      response: '',
+      clipboard: '',
+      result: false,
+    }
+  },
+  methods: {
+    copyToClipboard: function (value) {
+      let clipboardElement = document.querySelector('#copy-paste')
+      clipboardElement.setAttribute('type', 'text')
+      this.clipboard = JSON.stringify(value)
+
+      clipboardElement.select()
+      try {
+        document.execCommand('copy')
+      } catch (err) {
+        alert('Oops, unable to copy')
+      }
+
+      /* unselect the range */
+      clipboardElement.setAttribute('type', 'hidden')
+      window.getSelection().removeAllRanges()
+    },
+    getAPIInfo: async function () {
+      if (!this.url.includes('https://docs.google.com/spreadsheets/d/')) {
+        console.log('Invalid URL')
+      }
+
+      const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2]
+      const gid = this.url.match(/(?=gid).*/)[0].split('=')[1]
+
+      const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
+      console.log(apiInfo)
+      this.result = true
+      this.response = apiInfo.data
+      this.apiURL = apiInfo.apiURL
+    },
+  },
+  head() {
+    return {
+      title: 'Sheets2API',
+    }
+  },
+}
+</script>
+
+<style>
+.container {
+  display: flex;
+  margin: 0 auto;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form__group {
+  position: relative;
+  padding: 15px 0 0;
+  margin-top: 10px;
+  width: 50%;
+}
+
+.form__field {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  color: #2e2e2e;
+  padding: 7px 0;
+  font-size: 1.3rem;
+  font-family: inherit;
+  background: transparent;
+  transition: border-color 0.2s;
+  border-bottom: 2px solid #9b9b9b;
+}
+.form__field::placeholder {
+  color: transparent;
+}
+.form__field:placeholder-shown ~ .form__label {
+  font-size: 1.3rem;
+  cursor: text;
+  top: 20px;
+}
+
+.form__label {
+  position: absolute;
+  top: 0;
+  display: block;
+  transition: 0.2s;
+  font-size: 1rem;
+  color: #9b9b9b;
+}
+.form__helptext {
+  font-size: 12px;
+  color: #9b9b9b;
+  text-align: left;
+}
+.form__field:focus {
+  padding-bottom: 6px;
+  font-weight: 700;
+  border-width: 3px;
+  border-image: linear-gradient(to right, #11998e, #5ebb81);
+  border-image-slice: 1;
+}
+.form__field:focus ~ .form__label {
+  position: absolute;
+  top: 0;
+  display: block;
+  transition: 0.2s;
+  font-size: 1rem;
+  color: #11998e;
+  font-weight: 700;
+}
+
+/* reset input */
+.form__field:required,
+.form__field:invalid {
+  box-shadow: none;
+}
+
+.btn {
+  margin: 10px;
+  transition: 0.5s;
+  color: #2e2e2e;
+  text-align: center;
+  padding: 10px 30px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  background-size: 200% auto;
+  box-shadow: 0 0 20px #eee;
+}
+
+.btn:hover {
+  color: #fff;
+  background-position: right center;
+}
+
+.btn-success {
+  background-image: linear-gradient(
+    to right,
+    #84fab0 0%,
+    #8fd3f4 51%,
+    #84fab0 100%
+  );
+}
+
+.vjs-tree {
+  width: 100%;
+}
+.result {
+  width: 80%;
+}
+</style>
