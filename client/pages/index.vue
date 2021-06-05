@@ -28,6 +28,7 @@
         </div>
         <br />
         <a class="btn btn-success" @click="getAPIInfo">Get API</a>
+        <span class="message" v-if="message">{{ message }}</span>
       </div>
     </div>
     <div class="results" v-if="result">
@@ -85,6 +86,7 @@ export default {
       response: '',
       clipboard: '',
       result: false,
+      message: '',
     }
   },
   methods: {
@@ -105,18 +107,25 @@ export default {
       window.getSelection().removeAllRanges()
     },
     getAPIInfo: async function () {
-      if (!this.url.includes('https://docs.google.com/spreadsheets/d/')) {
+      if (
+        !this.url.length ||
+        !this.url.includes('https://docs.google.com/spreadsheets/d/')
+      ) {
+        this.message = 'Invalid URL'
         console.log('Invalid URL')
+      } else {
+        this.message = 'Preparing your API... scroll to view'
+        const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2]
+        const gid = this.url.match(/(?=gid).*/)[0].split('=')[1]
+
+        const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
+        this.result = true
+        this.response = apiInfo.data
+        this.apiURL = apiInfo.apiURL
       }
-
-      const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2]
-      const gid = this.url.match(/(?=gid).*/)[0].split('=')[1]
-
-      const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
-      console.log(apiInfo)
-      this.result = true
-      this.response = apiInfo.data
-      this.apiURL = apiInfo.apiURL
+      setTimeout(() => {
+        this.message = ''
+      }, 3000)
     },
   },
   head() {
@@ -263,6 +272,13 @@ export default {
 .logo-container img {
   width: 100%;
   height: 100%;
+}
+.message {
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  background-color: #fafafa;
+  text-align: left !important;
 }
 
 @media (max-width: 460px) {

@@ -82,6 +82,7 @@ export default {
 @media only screen and (max-width: 750px) {
   .banner {
     height: 250px;
+    background-image: linear-gradient(#8ad8a8, #54b87b);
   }
   .banner .banner-data {
     width: 90%;
