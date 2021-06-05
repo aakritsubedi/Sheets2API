@@ -13,7 +13,7 @@ Sheet2API turns your spreadsheet into a Restful JSON API, meaning you can get da
 
 ### Prototypes
 ## Bring your prototypes to life with real data
-![Prototype](../sheet2api/client/assets/images/prototype.png)
+![Prototype](./client/assets/images/prototype.png)
 
 Combine Sheets2API with your next prototype to create a fully interactive experience that can retrieve and update live data, all with just a few lines of code. `No complicated backend required.`
 
