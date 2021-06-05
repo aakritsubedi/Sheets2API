@@ -1,24 +1,37 @@
 <template>
-  <div class="container">
-    <img src="@/assets/images/sheet2api.png" alt="Sheet2API" />
-
-    <div class="form__group field">
-      <input
-        type="input"
-        class="form__field"
-        name="name"
-        id="name"
-        autocomplete="off"
-        v-model="url"
-      />
-      <label for="name" class="form__label">Google Sheet URL</label>
-      <span for="name" class="form__helptext"
-        >Enter th full url of the google sheets</span
-      >
+  <div>
+    <Banner />
+    <div class="container">
+      <div class="info">
+        <h2>Turn a Google Spreadsheet into a JSON API</h2>
+        <p>
+          Sheets2API turns your spreadsheet into a Restful JSON API, meaning you
+          can get data in and out of your spreadsheet using simple HTTP requests
+          and URLs. It also means that Sheets2API can work with pretty much
+          anything you like...
+        </p>
+      </div>
+      <div class="playground">
+        <div class="form__group field">
+          <input
+            type="input"
+            class="form__field"
+            name="name"
+            id="name"
+            autocomplete="off"
+            v-model="url"
+          />
+          <label for="name" class="form__label">Google Sheet URL</label>
+          <span for="name" class="form__helptext"
+            >Enter th full url of the google sheets</span
+          >
+        </div>
+        <br />
+        <a class="btn btn-success" @click="getAPIInfo">Get API</a>
+      </div>
     </div>
-    <a class="btn btn-success" @click="getAPIInfo">Get API</a>
-    <hr />
-    <div class="result" v-if="result">
+    <div class="results" v-if="result">
+      <h3># Results</h3>
       <div class="form__group field" style="width: 100%">
         <input
           type="input"
@@ -41,6 +54,8 @@
       </div>
       <input type="hidden" id="copy-paste" v-model="clipboard" />
     </div>
+    <Information />
+    <Footer />
   </div>
 </template>
 
@@ -48,12 +63,20 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
+import Banner from '@/components/Banner'
+import Footer from '@/components/Footer'
+import Information from '@/components/Info'
+
 import SheetsAPI from '@/services/sheets.js'
 
 export default {
   name: 'Sheet2API',
   components: {
     VueJsonPretty,
+    SheetsAPI,
+    Banner,
+    Information,
+    Footer,
   },
   data() {
     return {
@@ -106,12 +129,33 @@ export default {
 
 <style>
 .container {
+  height: 50vh;
   display: flex;
-  margin: 0 auto;
-  min-height: 100vh;
+  color: #2e2e2e;
+  flex-direction: row;
+  justify-content: center;
+}
+.container .info {
+  width: 30%;
+  display: flex;
+  padding: 0 16px;
+  height: inherit;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+}
+.info p {
+  margin: 10px 0;
+  font-size: 14px;
+}
+.container .playground {
+  padding: 0 16px;
+  height: inherit;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .form__group {
@@ -207,7 +251,39 @@ export default {
 .vjs-tree {
   width: 100%;
 }
-.result {
-  width: 80%;
+.results {
+  width: 100%;
+  color: #2e2e2e;
+  padding: 15px 16px;
+}
+.logo-container {
+  width: 700px;
+  height: 400px;
+}
+.logo-container img {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 460px) {
+  .container {
+    height: 400px;
+    flex-direction: column;
+    justify-content: unset;
+  }
+  .container .info {
+    width: 100%;
+  }
+  .info p {
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .form__group {
+    width: 100%;
+  }
+  .container .playground {
+    padding: 0 16px;
+    width: 100%;
+  }
 }
 </style>

@@ -6,7 +6,7 @@ start using [Sheets2API](https://sheets2api.netlify.app/) to turn their spreadsh
 Fully Restful JSON API
 ```shell
 $ echo 'Easy for Novices'
-$ echo 'Easy for Novices'
+$ echo 'Powerful for Pros.'
 ```
 
 Sheet2API turns your spreadsheet into a Restful JSON API, meaning you can get data in and out of your spreadsheet using simple HTTP requests and URLs. It also means that Sheet2API can work with pretty much anything you like...

@@ -11,7 +11,8 @@ export default {
       { hid: 'description', name: 'description', content: 'Turn any Google Sheet into an API instantly. Power websites, apps, or whatever you like, all from a spreadsheet.' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css' }
     ]
   },
 
