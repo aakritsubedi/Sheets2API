@@ -13,13 +13,13 @@ Sheet2API turns your spreadsheet into a Restful JSON API, meaning you can get da
 
 ### Prototypes
 ## Bring your prototypes to life with real data
-![CMS](../sheet2api/client/assets/images/prototype.png)
+![Prototype](../sheet2api/client/assets/images/prototype.png)
 
 Combine Sheets2API with your next prototype to create a fully interactive experience that can retrieve and update live data, all with just a few lines of code. `No complicated backend required.`
 
 ### CMS
 ## Give your client a CMS they can actually use 
-![CMS](../sheet2api/client/assets/images/section-cms.png)
+![CMS](./client/assets/images/section-cms.png)
 
 Use Sheets2API to populate content on your client's website. From simple headings to opening times, your client will appreciate the simplicity of a spreadsheet. 
 
