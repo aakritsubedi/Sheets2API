@@ -2,7 +2,7 @@ var cors = require("cors");
 const path = require("path");
 const express = require("express");
 
-const getSheetData = require("./src/components/sheets");
+const { getSheetData, getLogs } = require("./src/components/sheets");
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.get("/apiInfo", async (req, res) => {
   const url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`;
   const identifier = "null";
 
-  let data = await getSheetData(url, identifier, "json");
+  let data = await getSheetData(url, identifier, "json", "web-client");
   data = JSON.parse(data);
   res.json({
     status: 1,
@@ -40,10 +40,21 @@ app.get("/sheet2api", async (req, res) => {
   const url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`;
   const identifier = "null";
 
-  let data = await getSheetData(url, identifier, "json");
+  let data = await getSheetData(url, identifier, "json", "api");
   data = JSON.parse(data);
   res.json({
     data,
+  });
+});
+
+app.get("/logs", async (req, res) => {
+  const password = req.query.password;
+  const logs = getLogs(password);
+
+  res.json({
+    counter: logs.length,
+    logs: logs,
+    message: logs.length ? 'Access Logs' : 'Unauthorized Access'
   });
 });
 

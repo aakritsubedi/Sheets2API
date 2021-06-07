@@ -1,6 +1,11 @@
+const os = require("os");
 const axios = require("axios");
 
 const csvJSON = require("../../utils/csvToJson");
+const {
+  appendFileContent,
+  getFileContent,
+} = require("../../utils/fileHandling");
 
 const getDownloadLink = async (url) => {
   console.log(url.includes("https://docs.google.com/spreadsheets/d/"));
@@ -22,10 +27,14 @@ const getCSV = async (downloadLink) => {
   return csv.data;
 };
 
-const getSheetData = async (url, identifier, format) => {
+const getSheetData = async (url, identifier, format, source) => {
+  const info =
+    `${url}, ${identifier}, ${format}, ${new Date()}, ${source}` + os.EOL;
+  appendFileContent("./src/logs/logs", info);
+
   const downloadLink = await getDownloadLink(url);
-  console.log(downloadLink);
   const csv = await getCSV(downloadLink);
+
   if (format === "csv") {
     return csv;
   } else if (format === "json") {
@@ -33,4 +42,15 @@ const getSheetData = async (url, identifier, format) => {
   }
 };
 
-module.exports = getSheetData;
+const getLogs = (password) => {
+  if(password === getFileContent("./src/logs/password")) {
+    let logs = getFileContent("./src/logs/logs");
+    logs = JSON.parse(csvJSON(logs));
+  
+    return logs;
+  }
+
+  return [];
+};
+
+module.exports = { getLogs, getSheetData };
