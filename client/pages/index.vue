@@ -1,62 +1,72 @@
 <template>
-  <div>
-    <Banner />
-    <div class="container">
-      <div class="info">
-        <h2>Turn a Google Spreadsheet into a JSON API</h2>
-        <p>
-          Sheets2API turns your spreadsheet into a Restful JSON API, meaning you
-          can get data in and out of your spreadsheet using simple HTTP requests
-          and URLs. It also means that Sheets2API can work with pretty much
-          anything you like...
-        </p>
+  <div class="wrapper">
+    <div class="main-container">
+      <div class="logo">
+        <img alt="Sheets2API" src="@/assets/images/logo.png" />
       </div>
-      <div class="playground">
-        <div class="form__group field">
-          <input
-            type="input"
-            class="form__field"
-            name="name"
-            id="name"
-            autocomplete="off"
-            v-model="url"
-          />
-          <label for="name" class="form__label">Google Sheet URL</label>
-          <span for="name" class="form__helptext"
-            >Enter th full url of the google sheets</span
-          >
-        </div>
-        <br />
-        <a class="btn btn-success" @click="getAPIInfo">Get API</a>
-        <span class="message" v-if="message">{{ message }}</span>
+      <div class="bar">
+        <input
+          class="searchbar"
+          type="text"
+          title="Google Sheet URL"
+          v-model="url"
+          placeholder="Copy & Paste Google Sheet URL..."
+        />
+
+        <img
+          class="voice"
+          src="@/assets/images/googleSheets.png"
+          title="Search by Voice"
+        />
+      </div>
+      <div class="buttons">
+        <button class="button" type="button" @click="showResults">
+          Show Result
+        </button>
       </div>
     </div>
-    <div class="results" v-if="result">
-      <h3># Results</h3>
-      <div class="form__group field" style="width: 100%">
-        <input
-          type="input"
-          class="form__field"
-          readonly="true"
-          v-model="apiURL"
-          @click="() => copyToClipboard(apiURL)"
-        />
-        <label for="name" class="form__label">API Endpoint URL</label>
-        <span for="name" class="form__helptext">Your API Endpoint URL</span>
+    <div class="info-container">
+      <h2 class="info-title">Sheets2API</h2>
+      <p class="info-desc">
+        Turn your spreadsheets into something amazing today.
+      </p>
+      <p class="info-desc">
+        Sheets2API turns your spreadsheet into a Restful JSON API, meaning you
+        can get data in and out of your spreadsheet using simple HTTP requests
+        and URLs. It also means that Sheets2API can work with pretty much
+        anything you like...
+      </p>
+    </div>
+    <div class="results" :class="{ showResults: isResultVisible }">
+      <i class="fa fa-times hideResult" @click="hideResult"></i>
+      <div style="position: relative; margin: 15px 0" v-if="!isLoading">
+        <div class="responses">
+          <label class="label">API Endpoint URL</label>
+          <input
+            type="input"
+            class="api-url"
+            readonly="true"
+            v-model="apiURL"
+          />
+          <span class="label" style="display: block">Response Data</span>
+          <vue-json-pretty
+            :path="'res'"
+            :data="response"
+            @click="() => copyToClipboard(response)"
+          />
+        </div>
       </div>
-      <div style="position: relative; margin: 15px 0">
-        <span class="form__label" style="display: block">Response Data</span
-        ><br />
-        <vue-json-pretty
-          :path="'res'"
-          :data="response"
-          @click="() => copyToClipboard(response)"
-        />
+      <div class="loading-wrapper" v-else>
+        <div class="loader"></div>
+        <span>{{ message }}</span>
       </div>
       <input type="hidden" id="copy-paste" v-model="clipboard" />
     </div>
-    <Information />
-    <Footer />
+    <div class="github-icon">
+      <a href="https://github.com/aakritsubedi/Sheets2API" target="_blank">
+        <span class="fab fa-github"></span>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -64,20 +74,12 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
-import Banner from '@/components/Banner'
-import Footer from '@/components/Footer'
-import Information from '@/components/Info'
-
 import SheetsAPI from '@/services/sheets.js'
 
 export default {
-  name: 'Sheet2API',
+  name: 'Dashboard',
   components: {
     VueJsonPretty,
-    SheetsAPI,
-    Banner,
-    Information,
-    Footer,
   },
   data() {
     return {
@@ -85,7 +87,8 @@ export default {
       apiURL: '',
       response: '',
       clipboard: '',
-      result: false,
+      isResultVisible: false,
+      isLoading: true,
       message: '',
     }
   },
@@ -111,195 +114,218 @@ export default {
         !this.url.length ||
         !this.url.includes('https://docs.google.com/spreadsheets/d/')
       ) {
-        this.message = 'Invalid URL'
         console.log('Invalid URL')
+        this.message = 'Invalid URL, close result window & try again'
       } else {
-        this.message = 'Preparing your API... scroll to view'
-        const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2]
-        const gid = this.url.match(/(?=gid).*/)[0].split('=')[1]
+        this.message = 'Preparing your API...'
+        const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2] || 0
+        const gid = this.url.match(/(?=gid).*/)[0].split('=')[1] || 0
+
+        if (!key) {
+          this.message = 'Invalid Key, close result window & try again'
+        }
 
         const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
         this.result = true
         this.response = apiInfo.data
         this.apiURL = apiInfo.apiURL
+        this.isLoading = false
+
+        // Adding Query param in URL
+        this.$router.push({
+          path: this.$route.path,
+          query: { key: key, gid: gid },
+        })
       }
-      setTimeout(() => {
-        this.message = ''
-      }, 3000)
+    },
+    showResults: function () {
+      this.getAPIInfo()
+      this.isResultVisible = true
+    },
+    hideResult: function () {
+      this.isResultVisible = false
+      this.$router.replace('/')
     },
   },
-  head() {
-    return {
-      title: 'Sheets2API',
+  created() {
+    const { query } = this.$route
+    if (Object.keys(query).length) {
+      const { key, gid } = query
+      this.url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`
+      this.showResults()
     }
   },
 }
 </script>
 
-<style>
-.container {
-  height: 50vh;
-  display: flex;
-  color: #2e2e2e;
-  flex-direction: row;
-  justify-content: center;
-}
-.container .info {
-  width: 30%;
-  display: flex;
-  padding: 0 16px;
-  height: inherit;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-}
-.info p {
-  margin: 10px 0;
-  font-size: 14px;
-}
-.container .playground {
-  padding: 0 16px;
-  height: inherit;
-  width: 70%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.form__group {
+<style scoped>
+/* Layouts */
+.wrapper {
+  overflow: hidden;
   position: relative;
-  padding: 15px 0 0;
-  margin-top: 10px;
-  width: 50%;
+}
+.main-container {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+.info-container {
+  width: 100%;
+  height: 20vh;
+  display: flex;
+  padding: 0 16px;
+  color: #ffffff;
+  flex-direction: column;
+  justify-content: center;
+  background-image: linear-gradient(#3c8558, #54b87b);
+}
+/* Information */
+.info-title {
+  font-size: 28px;
+}
+.info-desc {
+  margin: 5px 0;
+  font-size: 16px;
+}
+/* Results */
+.results {
+  top: 0;
+  right: -40%;
+  width: 40%;
+  height: 100vh;
+  position: absolute;
+  padding: 5px 16px;
+  background-color: #fafafa;
+  z-index: 999;
+  overflow-y: scroll;
+  transition: right 0.4s ease-in-out;
+}
+.showResults {
+  right: 0;
+}
+.hideResult {
+  float: right;
+  font-size: 30px;
+  cursor: pointer;
+}
+/* Github Icon */
+.github-icon {
+  top: 5px;
+  right: 5px;
+  font-size: 25px;
+  position: absolute;
+}
+.github-icon a {
+  color: #2e2e2e;
+}
+.github-icon a:hover {
+  color: #535353;
 }
 
-.form__field {
+/* Searchbar */
+.bar {
+  margin: 0 auto;
+  width: 575px;
+  border-radius: 30px;
+  border: 1px solid #dcdcdc;
+}
+.bar:hover {
+  box-shadow: 1px 1px 8px 1px #dcdcdc;
+}
+.bar:focus-within {
+  box-shadow: 1px 1px 8px 1px #dcdcdc;
+  outline: none;
+}
+.searchbar {
+  margin-left: 25px;
+  height: 45px;
+  border: none;
+  width: 500px;
+  outline: none;
+  font-size: 16px;
+}
+.voice {
+  height: 20px;
+  position: relative;
+  top: 5px;
+  left: 10px;
+}
+
+/* Buttons */
+.buttons {
+  margin-top: 15px;
+}
+.button {
+  background-color: #f5f5f5;
+  border: none;
+  color: #707070;
+  font-size: 15px;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 4px;
+  outline: none;
+}
+.button:hover {
+  border: 1px solid #c8c8c8;
+  padding: 9px 19px;
+  color: #808080;
+}
+.button:focus {
+  border: 1px solid #4885ed;
+  padding: 9px 19px;
+}
+/* Logo */
+.logo {
+  margin-bottom: 20px;
+}
+/* Label, Input */
+.label {
+  display: block;
+  font-size: 1rem;
+  color: #9b9b9b;
+}
+.api-url {
   border: 0;
   outline: 0;
   width: 100%;
-  color: #2e2e2e;
   padding: 7px 0;
-  font-size: 1.3rem;
-  font-family: inherit;
+  font-size: 1rem;
+  color: #2e2e2e;
+  margin-bottom: 15px;
   background: transparent;
-  transition: border-color 0.2s;
   border-bottom: 2px solid #9b9b9b;
 }
-.form__field::placeholder {
-  color: transparent;
+/* Loader */
+.loading-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-.form__field:placeholder-shown ~ .form__label {
-  font-size: 1.3rem;
-  cursor: text;
-  top: 20px;
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
 }
-
-.form__label {
-  position: absolute;
-  top: 0;
-  display: block;
-  transition: 0.2s;
-  font-size: 1rem;
-  color: #9b9b9b;
-}
-.form__helptext {
-  font-size: 12px;
-  color: #9b9b9b;
-  text-align: left;
-}
-.form__field:focus {
-  padding-bottom: 6px;
-  font-weight: 700;
-  border-width: 3px;
-  border-image: linear-gradient(to right, #11998e, #5ebb81);
-  border-image-slice: 1;
-}
-.form__field:focus ~ .form__label {
-  position: absolute;
-  top: 0;
-  display: block;
-  transition: 0.2s;
-  font-size: 1rem;
-  color: #11998e;
-  font-weight: 700;
-}
-
-/* reset input */
-.form__field:required,
-.form__field:invalid {
-  box-shadow: none;
-}
-
-.btn {
-  margin: 10px;
-  transition: 0.5s;
-  color: #2e2e2e;
-  text-align: center;
-  padding: 10px 30px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  background-size: 200% auto;
-  box-shadow: 0 0 20px #eee;
-}
-
-.btn:hover {
-  color: #fff;
-  background-position: right center;
-}
-
-.btn-success {
-  background-image: linear-gradient(
-    to right,
-    #84fab0 0%,
-    #8fd3f4 51%,
-    #84fab0 100%
-  );
-}
-
-.vjs-tree {
-  width: 100%;
-}
-.results {
-  width: 100%;
-  color: #2e2e2e;
-  padding: 15px 16px;
-}
-.logo-container {
-  width: 700px;
-  height: 400px;
-}
-.logo-container img {
-  width: 100%;
-  height: 100%;
-}
-.message {
+.loading-wrapper span {
   font-size: 14px;
-  padding: 10px 16px;
-  border-radius: 4px;
-  background-color: #fafafa;
-  text-align: left !important;
+  color: #2e2e2e;
+  margin-top: 15px;
 }
 
-@media (max-width: 460px) {
-  .container {
-    height: 400px;
-    flex-direction: column;
-    justify-content: unset;
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  .container .info {
-    width: 100%;
-  }
-  .info p {
-    margin: 10px 0;
-    font-size: 14px;
-  }
-  .form__group {
-    width: 100%;
-  }
-  .container .playground {
-    padding: 0 16px;
-    width: 100%;
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>

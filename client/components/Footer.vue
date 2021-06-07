@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <div class="footer-top">
+    <!-- <div class="footer-top">
       <div class="quote-wrapper">
         <blockquote class="text" cite="https://aakritsubedi9.com.np">
           <p>
@@ -9,7 +9,7 @@
           </p>
         </blockquote>
       </div>
-    </div>
+    </div> -->
     <div class="footer-info">
       <span class="footer-copyright">Copyright &copy; {{ currentYear }}.</span>
       <span class="footer-copyright">All Right Reserved.</span>
