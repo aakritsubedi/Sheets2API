@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const getFileContent = (path) => {
   const contents = fs.readFileSync(path, "utf8");
 
@@ -12,8 +14,15 @@ const appendFileContent = (path, content) => {
 
 const deleteFile = async (path) => {
   fs.unlinkSync(path);
-}
+};
 
 const renameFile = async (path, newPath) => {
   fs.renameSync(path, newPath);
-}
+};
+
+module.exports = {
+  getFileContent,
+  appendFileContent,
+  deleteFile,
+  renameFile,
+};
