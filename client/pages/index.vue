@@ -63,7 +63,7 @@
       </div>
       <div class="loading-wrapper" v-else>
         <div class="loader"></div>
-        <span>{{ message }}</span>
+        <span v-html="message"></span>
       </div>
       <input type="hidden" id="copy-paste" v-model="clipboard" />
     </div>
@@ -120,21 +120,27 @@ export default {
         !this.url.includes('https://docs.google.com/spreadsheets/d/')
       ) {
         console.log('Invalid URL')
-        this.message = 'Invalid URL, close result window & try again'
+        this.message = 'Invalid URL provided. Update the link and try again.'
       } else {
         this.message = 'Preparing your API...'
         const key = this.url.match(/(?=\/d\/).*/)[0].split('/')[2] || 0
         const gid = this.url.match(/(?=gid).*/)[0].split('=')[1] || 0
 
         if (!key) {
-          this.message = 'Invalid Key, close result window & try again'
+          this.message = 'Unable to find the sheets with given key. Please check and try again.'
         }
 
         const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
-        this.result = true
-        this.response = apiInfo.data
-        this.apiURL = apiInfo.apiURL
-        this.isLoading = false
+        // Todo: Update the response
+        if(Object.values(apiInfo.data[0])[0] === '<!DOCTYPE html>') {
+          this.message = `Unable to access private sheets. <br/> Update the link in google sheets and try again.`
+        }
+        else {
+          this.result = true
+          this.response = apiInfo.data
+          this.apiURL = apiInfo.apiURL
+          this.isLoading = false
+        }
 
         // Adding Query param in URL
         this.$router.push({
@@ -158,6 +164,18 @@ export default {
       const { key, gid } = query
       this.url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`
       this.showResults()
+    }
+  },
+  head() {
+    return {
+      title: 'Sheets2API',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Turn any Google Sheet into an API instantly. Power websites, apps, or whatever you like, all from a spreadsheet.',
+        },
+      ],
     }
   },
 }
