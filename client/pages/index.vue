@@ -48,7 +48,8 @@
       <i class="fa fa-times hideResult" @click="hideResult"></i>
       <div style="position: relative; margin: 15px 0" v-if="!isLoading">
         <div class="responses">
-          <label class="label">API Endpoint URL</label>
+          <label class="label">API Endpoint Info</label>
+          <!-- 
           <input
             type="input"
             class="api-url"
@@ -60,7 +61,7 @@
             :path="'res'"
             :data="response"
             @click="() => copyToClipboard(response)"
-          />
+          /> -->
           <div class="api-methods">
             <div class="method" v-for="(method, key) in methods" :key="key">
               <span class="method-title">{{ method.title }}</span>
@@ -95,6 +96,7 @@
               </div>
             </div>
           </div>
+          <Testing :defaultURL="apiURL" defaultMethod="get" :sampleInputData="sampleInput"/>
           <div class="buttons">
             <button class="button" type="button" @click="hideResult">
               Hide Result
@@ -120,12 +122,15 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
+import Testing from '@/components/Testing';
+
 import SheetsAPI from '@/services/sheets.js'
 
 export default {
   name: 'Dashboard',
   components: {
     VueJsonPretty,
+    Testing
   },
   data() {
     return {
@@ -137,6 +142,7 @@ export default {
       isLoading: true,
       message: '',
       methods: [],
+      sampleInput: {},
     }
   },
   methods: {
@@ -180,6 +186,9 @@ export default {
           this.apiURL = apiInfo.apiURL
           this.isLoading = false
           this.methods = apiInfo.methods
+
+          let postMethodInfo = apiInfo.methods.find(method => method.title === 'POST');
+          this.sampleInput = postMethodInfo.body.example;
         } catch (err) {
           this.message = `<div>
             <strong>PERMISSION DENIED:</strong> <span>403</span><br />
