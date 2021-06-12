@@ -15,3 +15,6 @@ Turn your spreadsheets into something amazing today...
 [https://sheets2api.netlify.app/](https://sheets2api.netlify.app/)
 
 ![Sheets2API](./sheets2APIDemo.gif)
+
+## Share your sheets with following account info
+sheets2api@sheets2api.iam.gserviceaccount.com
