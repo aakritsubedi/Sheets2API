@@ -5,7 +5,7 @@
 }
 .main-container {
   width: 100%;
-  height: 80vh;
+  height: 75vh;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -13,9 +13,9 @@
 }
 .info-container {
   width: 100%;
-  height: 20vh;
+  height: 25vh;
   display: flex;
-  padding: 0 16px;
+  padding: 10px 16px;
   color: #ffffff;
   flex-direction: column;
   justify-content: center;
@@ -157,6 +157,47 @@
   font-size: 14px;
   color: #2e2e2e;
   margin-top: 15px;
+}
+
+/* Methods */
+.api-methods {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+}
+.method {
+  padding: 10px 16px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  margin-bottom: 15px;
+}
+.method-title {
+  font-size: 18px;
+  color: #eb753e;
+  display: block;
+}
+.method-description {
+  font-size: 14px;
+  display: block;
+  color: #2e2e2e;
+}
+.method-format, .method-keys {
+  font-size: 16px;
+  display: block;
+  color: #2e2e2e;
+  margin-bottom: 10px;
+}
+.method-keys span {
+  font-size: 12px;
+  margin-right: 5px;
+  border: 1px solid #ccc;
+  padding: 3px 4px;
+  border-radius: 4px;
+}
+
+/* Alert */
+.alert-wrapper {
+  margin: 15px 0;
 }
 
 @keyframes spin {

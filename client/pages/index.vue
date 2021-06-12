@@ -19,6 +19,7 @@
           title="Search by Voice"
         />
       </div>
+
       <div class="buttons">
         <button class="button" type="button" @click="showResults">
           Show Result
@@ -35,6 +36,12 @@
         can get data in and out of your spreadsheet using simple HTTP requests
         and URLs. It also means that Sheets2API can work with pretty much
         anything you like...
+      </p>
+      <p class="info-desc">
+        <b>Note: </b>
+        You need to add 
+        <b>sheets2api@sheets2api.iam.gserviceaccount.com</b> as editor in
+        spreadsheet.
       </p>
     </div>
     <div class="results" :class="{ showResults: isResultVisible }">
@@ -54,6 +61,40 @@
             :data="response"
             @click="() => copyToClipboard(response)"
           />
+          <div class="api-methods">
+            <div class="method" v-for="(method, key) in methods" :key="key">
+              <span class="method-title">{{ method.title }}</span>
+              <span class="method-description">{{ method.description }}</span>
+              <input
+                type="input"
+                class="api-url"
+                style="font-size: 12px"
+                readonly="true"
+                :value="method.url"
+              />
+              <div class="method-body" v-if="method.body">
+                <span class="method-format"
+                  ><strong>Format: </strong>{{ method.body.format }}</span
+                >
+                <div class="method-keys">
+                  <strong>Keys:</strong>
+                  <span
+                    v-for="(keys, index) in method.body.keys"
+                    :key="index"
+                    >{{ keys }}</span
+                  >
+                </div>
+                <span class="method-format">
+                  <strong>Example:</strong>
+                </span>
+                <vue-json-pretty
+                  :path="'res'"
+                  :data="method.body.example"
+                  @click="() => copyToClipboard(response)"
+                />
+              </div>
+            </div>
+          </div>
           <div class="buttons">
             <button class="button" type="button" @click="hideResult">
               Hide Result
@@ -95,6 +136,8 @@ export default {
       isResultVisible: false,
       isLoading: true,
       message: '',
+      methods: [],
+      isActive: true,
     }
   },
   methods: {
@@ -127,19 +170,20 @@ export default {
         const gid = this.url.match(/(?=gid).*/)[0].split('=')[1] || 0
 
         if (!key) {
-          this.message = 'Unable to find the sheets with given key. Please check and try again.'
+          this.message =
+            'Unable to find the sheets with given key. Please check and try again.'
         }
 
         const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
         // Todo: Update the response
-        if(Object.values(apiInfo.data[0])[0] === '<!DOCTYPE html>') {
+        if (Object.values(apiInfo.data[0])[0] === '<!DOCTYPE html>') {
           this.message = `Unable to access private sheets. <br/> Update the link in google sheets and try again.`
-        }
-        else {
+        } else {
           this.result = true
           this.response = apiInfo.data
           this.apiURL = apiInfo.apiURL
           this.isLoading = false
+          this.methods = apiInfo.methods
         }
 
         // Adding Query param in URL
@@ -173,7 +217,8 @@ export default {
         {
           hid: 'description',
           name: 'description',
-          content: 'Turn any Google Sheet into an API instantly. Power websites, apps, or whatever you like, all from a spreadsheet.',
+          content:
+            'Turn any Google Sheet into an API instantly. Power websites, apps, or whatever you like, all from a spreadsheet.',
         },
       ],
     }
