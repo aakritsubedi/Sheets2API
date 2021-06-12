@@ -39,7 +39,7 @@
       </p>
       <p class="info-desc">
         <b>Note: </b>
-        You need to add 
+        You need to add
         <b>sheets2api@sheets2api.iam.gserviceaccount.com</b> as editor in
         spreadsheet.
       </p>
@@ -137,7 +137,6 @@ export default {
       isLoading: true,
       message: '',
       methods: [],
-      isActive: true,
     }
   },
   methods: {
@@ -174,16 +173,19 @@ export default {
             'Unable to find the sheets with given key. Please check and try again.'
         }
 
-        const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
-        // Todo: Update the response
-        if (Object.values(apiInfo.data[0])[0] === '<!DOCTYPE html>') {
-          this.message = `Unable to access private sheets. <br/> Update the link in google sheets and try again.`
-        } else {
+        try {
+          const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
           this.result = true
           this.response = apiInfo.data
           this.apiURL = apiInfo.apiURL
           this.isLoading = false
           this.methods = apiInfo.methods
+        } catch (err) {
+          this.message = `<div>
+            <strong>PERMISSION DENIED:</strong> <span>403</span><br />
+            The caller does not have permission. <br /> 
+            You need to add sheets2api@sheets2api.iam.gserviceaccount.com as editor in spreadsheet.
+          </div>`
         }
 
         // Adding Query param in URL
@@ -194,6 +196,11 @@ export default {
       }
     },
     showResults: function () {
+      this.result = true
+      this.response = null
+      this.apiURL = null
+      this.isLoading = true
+      this.methods = []
       this.getAPIInfo()
       this.isResultVisible = true
     },

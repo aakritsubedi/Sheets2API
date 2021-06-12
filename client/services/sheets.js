@@ -5,11 +5,13 @@ class SheetsAPI {
     const baseUrl = 'https://sheets2api.aakritsubedi9.com.np';
 
     try {
-      const apiInfo = await axios.get(`${baseUrl}/apiInfo?key=${key}&gid=${gid}`)
+      const apiInfo = await axios.get(
+        `${baseUrl}/apiInfo?key=${key}&gid=${gid}`
+      )
 
       return apiInfo.data
     } catch (err) {
-      console.log('Error: ', err)
+      throw err
     }
   }
 }
