@@ -2,11 +2,7 @@ const cors = require("cors");
 const path = require("path");
 const express = require("express");
 
-const {
-  getSheetData,
-  getLogs,
-  addSheetData,
-} = require("./src/components/sheets");
+const { getSheetData, addSheetData } = require("./src/components/sheets");
 
 const app = express();
 
@@ -27,56 +23,53 @@ app.route("/").get(async (req, res) => {
 app.get("/apiInfo", async (req, res) => {
   const key = req.query.key;
   const gid = req.query.gid;
-  const url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`;
-  const identifier = "null";
 
-  let data = await getSheetData(url, identifier, "json", "web-client");
-  data = JSON.parse(data);
-  res.json({
-    status: 1,
-    apiURL: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
-    methods: [
-      {
-        title: "GET",
-        description: "Get all the data from sheet",
-        url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
-      },
-      {
-        title: "POST",
-        description: "Add the data to sheet",
-        url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
-        body: {
-          format: 'JSON',
-          keys: Object.keys(data[0]),
-          example: data[0]
-        }
-      },
-    ],
-    data: data,
-  });
+  try {
+    let data = await getSheetData(key, gid);
+    data = JSON.parse(data);
+    res.status(200).json({
+      status: 1,
+      apiURL: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+      methods: [
+        {
+          title: "GET",
+          description: "Get all the data from sheet",
+          url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+        },
+        {
+          title: "POST",
+          description: "Add the data to sheet",
+          url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+          body: {
+            format: "JSON",
+            keys: Object.keys(data[0]),
+            example: data[0],
+          },
+        },
+      ],
+      data: data,
+    });
+  } catch (err) {
+    const { status, code, message } = err.response.data.error;
+    res.status(code).json({
+      code: code,
+      status: status,
+      errors: [
+        message,
+        "Add sheets2api@sheets2api.iam.gserviceaccount.com to sheets as editor.",
+      ],
+    });
+  }
 });
 
-app.get("/sheet2api", async (req, res) => {
+app.get("/sheets2api", async (req, res) => {
   const key = req.query.key;
   const gid = req.query.gid;
-  const url = `https://docs.google.com/spreadsheets/d/${key}/edit#gid=${gid}`;
-  const identifier = "null";
 
-  let data = await getSheetData(url, identifier, "json", "api");
+  let data = await getSheetData(key, gid);
   data = JSON.parse(data);
-  res.json({
+  res.status(200).json({
     data,
-  });
-});
-
-app.get("/logs", async (req, res) => {
-  const password = req.query.password;
-  const logs = getLogs(password);
-
-  res.json({
-    counter: logs.length,
-    logs: logs,
-    message: logs.length ? "Access Logs" : "Unauthorized Access",
   });
 });
 
