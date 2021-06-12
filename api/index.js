@@ -16,7 +16,10 @@ app.route("/").get(async (req, res) => {
     name: "sheets2API",
     description: "Google Sheets to API",
     developedBy: "AAkrit Subedi",
-    version: "v1.0.0",
+    developerEmail: "aakritsubedi9@gmail.com",
+    version: "v2.0.0",
+    message:
+      "You need to add sheets2api@sheets2api.iam.gserviceaccount.com as editor in spreadsheet. ",
   });
 });
 
@@ -29,17 +32,17 @@ app.get("/apiInfo", async (req, res) => {
     data = JSON.parse(data);
     res.status(200).json({
       status: 1,
-      apiURL: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+      apiURL: `${baseUrl}/sheets2api?key=${key}&gid=${gid}`,
       methods: [
         {
           title: "GET",
           description: "Get all the data from sheet",
-          url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+          url: `${baseUrl}/sheets2api?key=${key}&gid=${gid}`,
         },
         {
           title: "POST",
           description: "Add the data to sheet",
-          url: `${baseUrl}/sheet2api?key=${key}&gid=${gid}`,
+          url: `${baseUrl}/sheets2api?key=${key}&gid=${gid}`,
           body: {
             format: "JSON",
             keys: Object.keys(data[0]),
