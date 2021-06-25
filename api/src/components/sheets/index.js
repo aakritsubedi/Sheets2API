@@ -66,6 +66,45 @@ const getSheetData = async (key, gid) => {
   return jsonData;
 };
 
+const getSheetsInfo = async (key) => {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "keys.json",
+    scopes: "https://www.googleapis.com/auth/spreadsheets",
+  });
+  // Create a client instance for auth
+  const client = await auth.getClient();
+
+  // Instance of Google Sheets API
+  const googleSheets = google.sheets({
+    version: "v4",
+    auth: client,
+  });
+
+  // Get a metadata about Sheets
+  const metadata = await googleSheets.spreadsheets.get({
+    auth: auth,
+    spreadsheetId: key,
+  });
+
+  const allData = {};
+  for await (sheet of metadata.data.sheets) {
+    let sheetName = sheet.properties.title;
+    let gid = sheet.properties.sheetId;
+    // Read rows from spreadsheet
+    const getRows = await googleSheets.spreadsheets.values.get({
+      auth: auth,
+      spreadsheetId: key,
+      range: sheetName,
+    });
+    const values = getRows.data.values;
+    const jsonData = await arrayJSON(values);
+
+    allData[`${sheetName}-${gid}`] = JSON.parse(jsonData);
+  }
+
+  return allData;
+};
+
 const addSheetData = async (key, gid, data) => {
   const auth = new google.auth.GoogleAuth({
     keyFile: "keys.json",
@@ -109,4 +148,4 @@ const addSheetData = async (key, gid, data) => {
   return info;
 };
 
-module.exports = { getSheetData, addSheetData };
+module.exports = { getSheetData, addSheetData, getSheetsInfo };

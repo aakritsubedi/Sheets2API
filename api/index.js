@@ -2,7 +2,11 @@ const cors = require("cors");
 const path = require("path");
 const express = require("express");
 
-const { getSheetData, addSheetData } = require("./src/components/sheets");
+const {
+  getSheetData,
+  addSheetData,
+  getSheetsInfo,
+} = require("./src/components/sheets");
 
 const app = express();
 
@@ -23,7 +27,7 @@ app.route("/").get(async (req, res) => {
   });
 });
 
-app.get("/apiInfo", async (req, res) => {
+app.get("/singleApiInfo", async (req, res) => {
   const key = req.query.key;
   const gid = req.query.gid;
 
@@ -53,6 +57,52 @@ app.get("/apiInfo", async (req, res) => {
       data: data,
     });
   } catch (err) {
+    const { status, code, message } = err.response.data.error;
+    res.status(code).json({
+      code: code,
+      status: status,
+      errors: [
+        message,
+        "Add sheets2api@sheets2api.iam.gserviceaccount.com to sheets as editor.",
+      ],
+    });
+  }
+});
+
+app.get("/apiInfo", async (req, res) => {
+  const key = req.query.key;
+  console.log(key);
+  try {
+    const data = await getSheetsInfo(key);
+    const apiInfo = {};
+    for (const [sheet, value] of Object.entries(data)) {
+      const ref = [
+        {
+          method: "GET",
+          description: "Get all the data from sheet",
+          url: `${baseUrl}/sheets2api?key=${key}&gid=${sheet.split('-')[1]}`,
+        },
+        {
+          method: "POST",
+          description: "Add the data to sheet",
+          url: `${baseUrl}/sheets2api?key=${key}&gid=${sheet.split('-')[1]}`,
+          body: {
+            format: "JSON",
+            keys: Object.keys(value[0]),
+            example: value[0],
+          },
+        },
+      ];
+
+      apiInfo[sheet.split('-')[0]] = ref;
+    }
+
+    res.status(200).json({
+      status: 1,
+      sheets: apiInfo
+    });
+  } catch (err) {
+    console.log(err);
     const { status, code, message } = err.response.data.error;
     res.status(code).json({
       code: code,
