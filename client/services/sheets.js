@@ -6,7 +6,7 @@ class SheetsAPI {
 
     try {
       const apiInfo = await axios.get(
-        `${baseUrl}/apiInfo?key=${key}&gid=${gid}`
+        `${baseUrl}/apiInfo?key=${key}`
       )
 
       return apiInfo.data

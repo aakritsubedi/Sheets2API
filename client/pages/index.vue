@@ -49,54 +49,50 @@
       <div style="position: relative; margin: 15px 0" v-if="!isLoading">
         <div class="responses">
           <label class="label">API Endpoint Info</label>
-          <!-- 
-          <input
-            type="input"
-            class="api-url"
-            readonly="true"
-            v-model="apiURL"
-          />
-          <span class="label" style="display: block">Response Data</span>
-          <vue-json-pretty
-            :path="'res'"
-            :data="response"
-            @click="() => copyToClipboard(response)"
-          /> -->
-          <div class="api-methods">
-            <div class="method" v-for="(method, key) in methods" :key="key">
-              <span class="method-title">{{ method.title }}</span>
-              <span class="method-description">{{ method.description }}</span>
+          <div
+            class="api-methods"
+            v-for="(sheetInfo, key) in sheets"
+            :key="key"
+          >
+            <span class="sheet-title">{{ key }}</span>
+            <div class="method" v-for="(info, key) in sheetInfo" :key="key">
+              <span class="method-title">{{ info.method }}</span>
+              <span class="method-description">{{ info.description }}</span>
               <input
                 type="input"
                 class="api-url"
                 style="font-size: 12px"
                 readonly="true"
-                :value="method.url"
+                :value="info.url"
               />
-              <div class="method-body" v-if="method.body">
+              <div class="method-body" v-if="info.body">
                 <span class="method-format"
-                  ><strong>Format: </strong>{{ method.body.format }}</span
+                  ><strong>Format: </strong>{{ info.body.format }}</span
                 >
                 <div class="method-keys">
                   <strong>Keys:</strong>
-                  <span
-                    v-for="(keys, index) in method.body.keys"
-                    :key="index"
-                    >{{ keys }}</span
-                  >
+                  <span v-for="(keys, index) in info.body.keys" :key="index">{{
+                    keys
+                  }}</span>
                 </div>
                 <span class="method-format">
                   <strong>Example:</strong>
                 </span>
-                <vue-json-pretty
+                <div style="overflow: hidden;">
+                  <vue-json-pretty
                   :path="'res'"
-                  :data="method.body.example"
+                  :data="info.body.example"
                   @click="() => copyToClipboard(response)"
                 />
+                </div>
               </div>
             </div>
+            <Testing
+              :defaultURL="sheetInfo[0].url"
+              defaultMethod="get"
+              :sampleInputData="sheetInfo[1].body.example"
+            />
           </div>
-          <Testing :defaultURL="apiURL" defaultMethod="get" :sampleInputData="sampleInput"/>
           <div class="buttons">
             <button class="button" type="button" @click="hideResult">
               Hide Result
@@ -122,7 +118,7 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 
-import Testing from '@/components/Testing';
+import Testing from '@/components/Testing'
 
 import SheetsAPI from '@/services/sheets.js'
 
@@ -130,7 +126,7 @@ export default {
   name: 'Dashboard',
   components: {
     VueJsonPretty,
-    Testing
+    Testing,
   },
   data() {
     return {
@@ -141,8 +137,7 @@ export default {
       isResultVisible: false,
       isLoading: true,
       message: '',
-      methods: [],
-      sampleInput: {},
+      sheets: {},
     }
   },
   methods: {
@@ -181,14 +176,10 @@ export default {
 
         try {
           const apiInfo = await SheetsAPI.fetchAPIInfo(key, gid)
+          this.isResultVisible = true
           this.result = true
-          this.response = apiInfo.data
-          this.apiURL = apiInfo.apiURL
+          this.sheets = apiInfo.sheets
           this.isLoading = false
-          this.methods = apiInfo.methods
-
-          let postMethodInfo = apiInfo.methods.find(method => method.title === 'POST');
-          this.sampleInput = postMethodInfo.body.example;
         } catch (err) {
           this.message = `<div>
             <strong>PERMISSION DENIED:</strong> <span>403</span><br />

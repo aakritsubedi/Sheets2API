@@ -37,6 +37,12 @@
 .results {
   margin: 15px 0;
 }
+.response-result {
+  overflow: hidden;
+  height: 250px;
+  overflow-y: scroll;
+  margin: 15px 0;
+}
 .api-input {
   display: none;
   margin: 15px 0;
@@ -66,4 +72,17 @@
 }
 .border-red {
   border: 1px solid #ff0000;
+}
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #54b87b;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #54b87b;
 }

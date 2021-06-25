@@ -32,7 +32,7 @@
       <div class="text-danger" v-if="apiBody && jsonerror">{{ jsonerror }}</div>
       <div class="text-success" v-if="!jsonerror">Valid JSON ✔</div>
     </div>
-    <div class="results" v-if="results">
+    <div class="response-result" v-if="results">
       <span class="label" style="display: block">Response Data</span>
       <vue-json-pretty :path="'res'" :data="results" />
     </div>

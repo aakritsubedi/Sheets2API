@@ -171,6 +171,12 @@
   transition: 0.3s;
   margin-bottom: 15px;
 }
+.sheet-title {
+  font-size: 20px;
+  color: #3c8558;
+  display: block;
+  margin: 10px 0;
+}
 .method-title {
   font-size: 18px;
   color: #eb753e;
